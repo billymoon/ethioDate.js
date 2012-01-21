@@ -1,0 +1,153 @@
+function getEthiopianDateTx(in_gregorian_dt date)
+  return varchar2
+is  
+  v_day_nr number;
+  v_etMonth_tx varchar2(255);
+  v_year_nr number;
+begin  
+  v_day_nr := getEthiopianDay(in_gregorian_dt);
+  v_etMonth_tx := getEthiopianMonth(in_gregorian_dt);
+  v_year_nr := getEthiopianYear(in_gregorian_dt);
+  return getEthiopianDateTx (v_day_nr, v_etMonth_tx, v_year_nr);
+end;
+ 
+ 
+function getEthiopianDay(in_gregorian_dt date)
+  return number
+is  
+  v_gregorianDay number;
+  v_etTotalDay number;
+  v_etDay number;  
+  v_gregorianYear number;
+  v_etYear number;
+  v_etMonth number;
+begin      
+  select to_number(to_char(in_gregorian_dt, 'DDD')), to_number(to_char(in_gregorian_dt, 'YYYY')) into v_gregorianDay, v_gregorianYear
+  from dual;
+  if mod(v_gregorianYear, 4) = 0 then
+    if v_gregorianDay < 255 then
+      v_etTotalDay := v_gregorianDay + 110;  
+      v_etYear := v_gregorianYear - 8;  
+    else
+      v_etTotalDay := v_gregorianDay - 255;  
+      v_etYear := v_gregorianYear - 7;          
+    end if;     
+  elsif mod(v_gregorianYear + 1, 4) = 0 then
+    if v_gregorianDay < 255 then
+      v_etTotalDay := v_gregorianDay + 111;  
+      v_etYear := v_gregorianYear - 8;  
+    else
+      v_etTotalDay := v_gregorianDay - 255;  
+      v_etYear := v_gregorianYear - 7;          
+    end if;      
+  else
+    if v_gregorianDay < 254 then
+      v_etTotalDay := v_gregorianDay + 111;  
+      v_etYear := v_gregorianYear - 8;  
+    else
+      v_etTotalDay := v_gregorianDay - 254;  
+      v_etYear := v_gregorianYear - 7;          
+    end if;       
+  end if;
+ 
+ 
+ 
+function getEthiopianMonth(in_gregorian_dt date)
+  return varchar2
+is  
+  v_gregorianDay number;
+  v_etTotalDay number;
+  v_etDay number;  
+  v_gregorianYear number;
+  v_etYear number;
+  v_etMonth number;
+begin      
+  select to_number(to_char(in_gregorian_dt, 'DDD')), to_number(to_char(in_gregorian_dt, 'YYYY')) into v_gregorianDay, v_gregorianYear
+  from dual;
+  if mod(v_gregorianYear, 4) = 0 then
+    if v_gregorianDay < 255 then
+      v_etTotalDay := v_gregorianDay + 110;  
+      v_etYear := v_gregorianYear - 8;  
+    else
+      v_etTotalDay := v_gregorianDay - 255;  
+      v_etYear := v_gregorianYear - 7;          
+    end if;     
+  elsif mod(v_gregorianYear + 1, 4) = 0 then
+    if v_gregorianDay < 255 then
+      v_etTotalDay := v_gregorianDay + 111;  
+      v_etYear := v_gregorianYear - 8;  
+    else
+      v_etTotalDay := v_gregorianDay - 255;  
+      v_etYear := v_gregorianYear - 7;          
+    end if;      
+  else
+    if v_gregorianDay < 254 then
+      v_etTotalDay := v_gregorianDay + 111;  
+      v_etYear := v_gregorianYear - 8;  
+    else
+      v_etTotalDay := v_gregorianDay - 254;  
+      v_etYear := v_gregorianYear - 7;          
+    end if;       
+  end if;
+  
+  v_etMonth := floor(v_etTotalDay / 30) + 1;  
+  return getEtMonthNameTx(v_etMonth);  
+exception
+  when no_data_found then
+    return null;  
+end;
+ 
+function getEthiopianYear(in_gregorian_dt date)
+  return number
+is  
+  v_gregorianDay number;
+  v_gregorianYear number;
+  v_etYear number;
+begin
+  select to_number(to_char(in_gregorian_dt, 'DDD')), to_number(to_char(in_gregorian_dt, 'YYYY')) into v_gregorianDay, v_gregorianYear
+  from dual;
+ 
+  if mod(v_gregorianYear, 4) = 0 then
+    if v_gregorianDay < 255 then
+      v_etYear := v_gregorianYear - 8;  
+    else
+      v_etYear := v_gregorianYear - 7;          
+    end if;     
+  elsif mod(v_gregorianYear + 1, 4) = 0 then
+    if v_gregorianDay < 255 then
+      v_etYear := v_gregorianYear - 8;  
+    else
+      v_etYear := v_gregorianYear - 7;          
+    end if;      
+  else
+    if v_gregorianDay < 254 then
+      v_etYear := v_gregorianYear - 8;  
+    else
+      v_etYear := v_gregorianYear - 7;          
+    end if;       
+  end if;
+  return v_etYear;  
+exception
+  when no_data_found then
+    return null;  
+end;
+ 
+ 
+function getEthiopianDateTx(in_day_nr number, in_etMonth_tx varchar2, in_year number)
+  return varchar2
+is  
+  v_month_tx varchar2(2);  
+  v_day_tx varchar2(2);
+begin  
+  v_month_tx := getMonthIndexTx(in_etMonth_tx);
+  v_day_tx := in_day_nr;
+  
+  if length(v_month_tx) = 1 then
+    v_month_tx := '0' || v_month_tx;
+  end if;
+  if length(v_day_tx) = 1 then
+    v_day_tx := '0' || v_day_tx;
+  end if;
+  
+  return v_day_tx || '/' || v_month_tx || '/' || in_year;
+ end;
