@@ -88,10 +88,12 @@ getEthiopianYear = (date) ->
 # added rev flag to allow for Y-M-D and D/M/Y output
 # removed tx variables (which I assume add text value to numeric month/day name)
 formatDate = (year, month, day, rev = false) ->
-  if month < 10 then month = '0' + month
-  if day < 10 then day = '0' + day
-  if rev then year + '-' + month + '-' + day
-  else day + '/' + month + '/' + year    
+  if rev == 'full' then day + (if day.toString().match(/(^|2|3)1$/) then 'st' else if day.toString().match(/(^|2)2$/) then 'nd' else if day.toString().match(/(^|2)3$/) then 'rd' else 'th') + ' of ' + months[month] + ' ' + year
+  else
+    if month < 10 then month = '0' + month
+    if day < 10 then day = '0' + day
+    if rev then year + '-' + month + '-' + day
+    else day + '/' + month + '/' + year    
 
 # Added to calculate ferangee Day of Year
 getFerangeeDOY = (dateIn) ->
@@ -100,7 +102,7 @@ getFerangeeDOY = (dateIn) ->
 ### Test it all out ###
 console.clear()
 console.log getEthiopianDate (new Date "1984-07-17"), true # Rahel's Birthday
-console.log getEthiopianDate new Date "2012-01-12" # Labour day
+console.log getEthiopianDate (new Date "2012-01-12"), 'full' # Labour day
 console.log getEthiopianDate new Date "2012-01-13" # Mia's Birthday
 console.log getEthiopianDate new Date() # today
 ###
